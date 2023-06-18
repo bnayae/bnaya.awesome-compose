@@ -1,0 +1,39 @@
+services:
+  redis:
+    image: redislabs/rejson
+    container_name: redis-event-source
+    ports:
+      - 6379:6379
+    restart: unless-stopped
+  jaeger:
+    image: jaegertracing/opentelemetry-all-in-one
+    container_name: jaeger
+    ports:
+      - 13133:13133
+      - 16686:16686
+      - 55680:55680
+    restart: unless-stopped
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prom_data:/prometheus
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+    volumes:
+      - ./grafana:/etc/grafana/provisioning/datasources
+volumes:
+  prom_data:
